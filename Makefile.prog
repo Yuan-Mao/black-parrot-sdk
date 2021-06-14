@@ -9,6 +9,7 @@ spec2000_dir    := $(BP_SDK_DIR)/spec2000
 spec2006_dir    := $(BP_SDK_DIR)/spec2006
 riscvdv_dir     := $(BP_SDK_DIR)/riscv-dv
 linux_dir       := $(BP_SDK_DIR)/linux
+splash3_dir     := $(BP_SDK_DIR)/splash3
 
 define submodule_test_template
 $(1)_tag ?= $(addprefix $(1)., $(shell cd $(2); git rev-parse HEAD))
@@ -67,13 +68,16 @@ spec2006_build:
 riscv-dv_build:
 	$(MAKE) -C $(riscvdv_dir)
 
+splash3_build:
+	$(MAKE) -C $(splash3_dir) RISCV_TARGET=riscv64-unknown-linux-gnu
+
 # Default Linux build is single core and terminates immediately
 OPENSBI_NCPUS ?= 1
 WITH_SHELL    ?= $(linux_dir)/cfg/test.sh
 linux_build:
 	$(MAKE) -C $(linux_dir) linux.riscv OPENSBI_NCPUS=$(OPENSBI_NCPUS) WITH_SHELL=$(WITH_SHELL)
 
-.PHONY: perch bootrom bp-demos bp-tests riscv-tests beebs coremark spec2000 spec2006 riscv-dv linux
+.PHONY: perch bootrom bp-demos bp-tests riscv-tests beebs coremark spec2000 spec2006 riscv-dv linux splash3
 $(eval $(call submodule_test_template,perch,$(perch_dir)))
 $(eval $(call submodule_test_template,bootrom,$(bootrom_dir)))
 $(eval $(call submodule_test_template,bp-demos,$(bp_demos_dir)))
@@ -85,6 +89,7 @@ $(eval $(call submodule_test_template,spec2000,$(spec2000_dir)))
 $(eval $(call submodule_test_template,spec2006,$(spec2006_dir)))
 $(eval $(call submodule_test_template,riscv-dv,$(riscvdv_dir)))
 $(eval $(call submodule_test_template,linux,$(linux_dir)))
+$(eval $(call submodule_test_template,splash3,$(splash3_dir)))
 
 .PHONY: prog_clean
 prog_clean:
@@ -100,3 +105,4 @@ prog_clean:
 	-$(MAKE) -C $(spec2006_dir) clean
 	-$(MAKE) -C $(riscvdv_dir) clean
 	-$(MAKE) -C $(linux_dir) clean
+	-$(MAKE) -C $(splash3_dir) clean
